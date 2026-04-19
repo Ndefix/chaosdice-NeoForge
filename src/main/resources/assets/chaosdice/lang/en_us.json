@@ -1,0 +1,13 @@
+{
+  "itemGroup.chaosdice": "Example Mod Tab",
+  "block.chaosdice.example_block": "Example Block",
+  "item.chaosdice.example_item": "Example Item",
+
+  "chaosdice.configuration.title": "Chaos Dice Configs",
+  "chaosdice.configuration.section.chaosdice.common.toml": "Chaos Dice Configs",
+  "chaosdice.configuration.section.chaosdice.common.toml.title": "Chaos Dice Configs",
+  "chaosdice.configuration.items": "Item List",
+  "chaosdice.configuration.logDirtBlock": "Log Dirt Block",
+  "chaosdice.configuration.magicNumberIntroduction": "Magic Number Text",
+  "chaosdice.configuration.magicNumber": "Magic Number"
+}
