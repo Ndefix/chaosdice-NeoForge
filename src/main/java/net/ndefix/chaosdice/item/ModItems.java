@@ -12,7 +12,7 @@ public class ModItems {
 
     // Zmieniamy "new Item" na "new ChaosDiceItem"
     public static final DeferredItem<ChaosDiceItem> CHAOSDICE = ITEMS.register("chaosdice",
-            () -> new ChaosDiceItem(new Item.Properties().stacksTo(1).durability(64)));
+            () -> new ChaosDiceItem(new Item.Properties().stacksTo(64)));
 
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);
