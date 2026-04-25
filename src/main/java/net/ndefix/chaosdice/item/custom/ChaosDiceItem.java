@@ -50,6 +50,11 @@ public class ChaosDiceItem extends Item {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack itemStack = player.getItemInHand(hand);
 
+        // Check if the item is on cooldown
+        if (player.getCooldowns().isOnCooldown(this)) {
+            return InteractionResultHolder.fail(itemStack);
+        }
+
         if (!level.isClientSide() && level instanceof ServerLevel serverLevel) {
             TierResult tier = rollTier();
 
@@ -63,6 +68,9 @@ public class ChaosDiceItem extends Item {
             floatingDice.setPickUpDelay(32767);
             floatingDice.setGlowingTag(true);
             level.addFreshEntity(floatingDice);
+
+            // Apply 10 second cooldown (200 ticks) per player
+            player.getCooldowns().addCooldown(this, 200);
 
             spawnRitualSequence(tier, serverLevel, player, floatingDice);
             itemStack.shrink(1);
