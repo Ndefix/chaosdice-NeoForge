@@ -37,6 +37,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.phys.Vec3;
 import net.ndefix.chaosdice.Config;
+import net.ndefix.chaosdice.compat.ModCompatibility;
 import net.ndefix.chaosdice.item.ModItems;
 import org.joml.Vector3f;
 
@@ -294,6 +295,8 @@ public class ChaosDiceItem extends Item {
             msg(player, "§aCommon! The chaos tax has been paid.");
         });
 
+        ModCompatibility.addCommonEffects(pool, player);
+
         return pool;
     }
 
@@ -444,6 +447,8 @@ public class ChaosDiceItem extends Item {
             msg(player, "§9Rare! Ghast tears, still warm.");
         });
 
+        ModCompatibility.addRareEffects(pool, player);
+
         return pool;
     }
 
@@ -533,6 +538,7 @@ public class ChaosDiceItem extends Item {
             msg(player, "§5Very Rare! Blessed with all powers!");
         });
 
+        ModCompatibility.addVeryRareEffects(pool, player);
         return pool;
     }
 
@@ -729,6 +735,7 @@ public class ChaosDiceItem extends Item {
             msg(player, "§6Epic! The ultimate crossbow!");
         });
 
+        ModCompatibility.addEpicEffects(pool, player);
         return pool;
     }
 
@@ -864,6 +871,7 @@ public class ChaosDiceItem extends Item {
             msg(player, "§e§lLEGENDARY! A Chaos Titan rises to protect you!");
         });
 
+        ModCompatibility.addLegendaryEffects(pool, player);
         return pool;
     }
 
@@ -1027,6 +1035,7 @@ public class ChaosDiceItem extends Item {
             msg(player, "§4Negative! A phantom swarm descends!");
         });
 
+        ModCompatibility.addNegativeEffects(pool, player);
         return pool;
     }
 
