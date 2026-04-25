@@ -1,25 +1,20 @@
+# Chaos Dice 🎲
 
-Installation information
-=======
+A thrilling Minecraft mod built with **NeoForge** that introduces the **Chaos Dice** — a high-stakes magical artifact that grants powerful rewards or dangerous curses through an epic ritual.
 
-This template repository can be directly cloned to get you started with a new
-mod. Simply create a new repository cloned from this one, by following the
-instructions provided by [GitHub](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template).
+## 🌟 Features
 
-Once you have your clone, simply open the repository in the IDE of your choice. The usual recommendation for an IDE is either IntelliJ IDEA or Eclipse.
+### The Chaos Ritual
+When you right click with item you see message on the chat and particles in front of you that depends on what you get
 
-If at any point you are missing libraries in your IDE, or you've run into problems you can
-run `gradlew --refresh-dependencies` to refresh the local cache. `gradlew clean` to reset everything 
-{this does not affect your code} and then start the process again.
+### Rarity Tiers & Rewards
+Every roll is a gamble. The dice can land on one of the following tiers:
 
-Mapping Names:
-============
-By default, the MDK is configured to use the official mapping names from Mojang for methods and fields 
-in the Minecraft codebase. These names are covered by a specific license. All modders should be aware of this
-license. For the latest license text, refer to the mapping file itself, or the reference copy here:
-https://github.com/NeoForged/NeoForm/blob/main/Mojang.md
-
-Additional Resources: 
-==========
-Community Documentation: https://docs.neoforged.net/  
-NeoForged Discord: https://discord.neoforged.net/
+| Tier | Chance | Reward Example |
+| :--- | :--- | :--- |
+| **Common** | 40% | Speed II Effect |
+| **Rare** | 15% | 5x Diamonds |
+| **Very Rare** | 10% | Totem of Undying |
+| **Epic** | 5% | Enchanted Netherite Sword (Sharpness V) |
+| **Legendary** | 1% | Full Set of Netherite Armor + Lightning Strike |
+| **Negative** | 29% | Spawns a **Wither** 💀 |

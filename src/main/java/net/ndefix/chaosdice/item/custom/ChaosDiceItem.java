@@ -69,8 +69,8 @@ public class ChaosDiceItem extends Item {
             floatingDice.setGlowingTag(true);
             level.addFreshEntity(floatingDice);
 
-            // Apply 10 second cooldown (200 ticks) per player
-            player.getCooldowns().addCooldown(this, 200);
+            // Apply 5 second cooldown (100 ticks) per player
+            player.getCooldowns().addCooldown(this, 100);
 
             spawnRitualSequence(tier, serverLevel, player, floatingDice);
             itemStack.shrink(1);
