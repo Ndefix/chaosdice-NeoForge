@@ -10,11 +10,13 @@ When you right click with item you see message on the chat and particles in fron
 ### Rarity Tiers & Rewards
 Every roll is a gamble. The dice can land on one of the following tiers:
 
-| Tier | Chance | Reward Example |
-| :--- | :--- | :--- |
-| **Common** | 40% | Speed II Effect |
-| **Rare** | 15% | 5x Diamonds |
-| **Very Rare** | 10% | Totem of Undying |
-| **Epic** | 5% | Enchanted Netherite Sword (Sharpness V) |
-| **Legendary** | 1% | Full Set of Netherite Armor + Lightning Strike |
-| **Negative** | 29% | Spawns a **Wither** 💀 |
+| Tier | Chance | 
+| :--- | :--- | 
+| **Common** | 40% |
+| **Rare** | 15% |
+| **Very Rare** | 10% | 
+| **Epic** | 5% |
+| **Legendary** | 1% |
+| **Negative** | 29% |
+
+you can edit chance in config file

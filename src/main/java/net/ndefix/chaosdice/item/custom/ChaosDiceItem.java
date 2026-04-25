@@ -18,7 +18,9 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
+import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Phantom;
 import net.minecraft.world.entity.monster.Zombie;
@@ -30,7 +32,11 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.phys.Vec3;
+import net.ndefix.chaosdice.Config;
+import net.ndefix.chaosdice.item.ModItems;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
@@ -88,13 +94,26 @@ public class ChaosDiceItem extends Item {
     }
 
     private TierResult rollTier() {
-        double roll = Math.random() * 100;
-        if (roll < 40)      return TierResult.COMMON;
-        else if (roll < 55) return TierResult.RARE;
-        else if (roll < 65) return TierResult.VERY_RARE;
-        else if (roll < 70) return TierResult.EPIC;
-        else if (roll < 71) return TierResult.LEGENDARY;
-        else                return TierResult.NEGATIVE;
+        int wCommon = Config.INSTANCE.commonWeight.get();
+        int wRare = Config.INSTANCE.rareWeight.get();
+        int wVRare = Config.INSTANCE.veryRareWeight.get();
+        int wEpic = Config.INSTANCE.epicWeight.get();
+        int wLegend = Config.INSTANCE.legendaryWeight.get();
+        int wNeg = Config.INSTANCE.negativeWeight.get();
+
+        int totalWeight = wCommon + wRare + wVRare + wEpic + wLegend + wNeg;
+        if (totalWeight <= 0) return TierResult.COMMON; // Zabezpieczenie przed 0
+
+        int roll = (int) (Math.random() * totalWeight);
+        int cursor = 0;
+
+        if (roll < (cursor += wCommon)) return TierResult.COMMON;
+        if (roll < (cursor += wRare))   return TierResult.RARE;
+        if (roll < (cursor += wVRare))  return TierResult.VERY_RARE;
+        if (roll < (cursor += wEpic))   return TierResult.EPIC;
+        if (roll < (cursor += wLegend)) return TierResult.LEGENDARY;
+
+        return TierResult.NEGATIVE;
     }
 
     // -------------------------------------------------------------------------
@@ -123,47 +142,34 @@ public class ChaosDiceItem extends Item {
     private List<Runnable> commonEffects(Player player) {
         List<Runnable> pool = new ArrayList<>();
 
-        // 32x bread
         pool.add(() -> {
             player.addItem(new ItemStack(Items.BREAD, 32));
             msg(player, "§aCommon! Fresh bread from the void!");
         });
-
-        // 32x cooked beef
         pool.add(() -> {
             player.addItem(new ItemStack(Items.COOKED_BEEF, 32));
             msg(player, "§aCommon! A feast of steak appears!");
         });
-
-        // 16x arrows
         pool.add(() -> {
             player.addItem(new ItemStack(Items.ARROW, 16));
             msg(player, "§aCommon! A quiver of arrows!");
         });
-
-        // 8x spectral arrows
         pool.add(() -> {
             player.addItem(new ItemStack(Items.SPECTRAL_ARROW, 8));
             msg(player, "§aCommon! Spectral arrows, nice!");
         });
-
-        // Stone tools set
         pool.add(() -> {
             player.addItem(new ItemStack(Items.STONE_SWORD));
             player.addItem(new ItemStack(Items.STONE_PICKAXE));
             player.addItem(new ItemStack(Items.STONE_AXE));
             msg(player, "§aCommon! A basic set of stone tools!");
         });
-
-        // Iron tools set
         pool.add(() -> {
             player.addItem(new ItemStack(Items.IRON_SWORD));
             player.addItem(new ItemStack(Items.IRON_PICKAXE));
             player.addItem(new ItemStack(Items.IRON_AXE));
             msg(player, "§aCommon! Iron tools, reliable!");
         });
-
-        // Leather armor
         pool.add(() -> {
             player.addItem(new ItemStack(Items.LEATHER_HELMET));
             player.addItem(new ItemStack(Items.LEATHER_CHESTPLATE));
@@ -171,48 +177,104 @@ public class ChaosDiceItem extends Item {
             player.addItem(new ItemStack(Items.LEATHER_BOOTS));
             msg(player, "§aCommon! A leather armor set!");
         });
-
-        // XP 3–8 levels
         pool.add(() -> {
             int levels = 3 + RAND.nextInt(6);
             player.giveExperienceLevels(levels);
             msg(player, "§aCommon! +" + levels + " XP levels!");
         });
-
-        // Speed II 60s
         pool.add(() -> {
             player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 1200, 1));
             msg(player, "§aCommon! You feel swift!");
         });
-
-        // Jump Boost II 60s
         pool.add(() -> {
             player.addEffect(new MobEffectInstance(MobEffects.JUMP, 1200, 1));
             msg(player, "§aCommon! Feeling bouncy!");
         });
-
-        // Saturation 30s
         pool.add(() -> {
             player.addEffect(new MobEffectInstance(MobEffects.SATURATION, 600, 0));
             msg(player, "§aCommon! Your hunger is satisfied!");
         });
-
-        // 64x torches
         pool.add(() -> {
             player.addItem(new ItemStack(Items.TORCH, 64));
             msg(player, "§aCommon! Let there be light!");
         });
-
-        // 32x ladders
         pool.add(() -> {
             player.addItem(new ItemStack(Items.LADDER, 32));
             msg(player, "§aCommon! Climb anything!");
         });
-
-        // 8x ender pearls
         pool.add(() -> {
             player.addItem(new ItemStack(Items.ENDER_PEARL, 8));
             msg(player, "§aCommon! Ender pearls at your service!");
+        });
+
+        // NEW — sticks + string
+        pool.add(() -> {
+            player.addItem(new ItemStack(Items.STICK, 16));
+            player.addItem(new ItemStack(Items.STRING, 8));
+            msg(player, "§aCommon! A crafter's starter pack!");
+        });
+
+        // NEW — random colored wool x64
+        pool.add(() -> {
+            Item[] wools = {
+                    Items.WHITE_WOOL, Items.ORANGE_WOOL, Items.MAGENTA_WOOL,
+                    Items.LIGHT_BLUE_WOOL, Items.YELLOW_WOOL, Items.LIME_WOOL,
+                    Items.PINK_WOOL, Items.GRAY_WOOL, Items.CYAN_WOOL,
+                    Items.PURPLE_WOOL, Items.BLUE_WOOL, Items.GREEN_WOOL,
+                    Items.RED_WOOL, Items.BLACK_WOOL
+            };
+            Item wool = wools[RAND.nextInt(wools.length)];
+            player.addItem(new ItemStack(wool, 64));
+            msg(player, "§aCommon! A stack of colorful wool!");
+        });
+
+        // NEW — 3x golden carrots
+        pool.add(() -> {
+            player.addItem(new ItemStack(Items.GOLDEN_CARROT, 3));
+            msg(player, "§aCommon! Golden carrots, tasty!");
+        });
+
+        // NEW — 8x snowballs
+        pool.add(() -> {
+            player.addItem(new ItemStack(Items.SNOWBALL, 8));
+            msg(player, "§aCommon! Snowball fight!");
+        });
+
+        // NEW — fishing rod
+        pool.add(() -> {
+            player.addItem(new ItemStack(Items.FISHING_ROD));
+            msg(player, "§aCommon! Gone fishin'!");
+        });
+
+        // NEW — 32x bones
+        pool.add(() -> {
+            player.addItem(new ItemStack(Items.BONE, 32));
+            msg(player, "§aCommon! A pile of bones!");
+        });
+
+        // NEW — 16x sugar cane
+        pool.add(() -> {
+            player.addItem(new ItemStack(Items.SUGAR_CANE, 16));
+            msg(player, "§aCommon! Sugar cane materializes!");
+        });
+
+        // NEW — Night vision potion 3 min
+        pool.add(() -> {
+            player.addItem(new ItemStack(Items.POTION));
+            player.addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, 3600, 0));
+            msg(player, "§aCommon! Night vision potion!");
+        });
+
+        // NEW — 5x books
+        pool.add(() -> {
+            player.addItem(new ItemStack(Items.BOOK, 5));
+            msg(player, "§aCommon! Knowledge... sort of.");
+        });
+
+        // NEW — 64x gravel
+        pool.add(() -> {
+            player.addItem(new ItemStack(Items.GRAVEL, 64));
+            msg(player, "§aCommon! The chaos tax has been paid.");
         });
 
         return pool;
@@ -225,14 +287,11 @@ public class ChaosDiceItem extends Item {
     private List<Runnable> rareEffects(Level level, Player player) {
         List<Runnable> pool = new ArrayList<>();
 
-        // 3–5 emeralds
         pool.add(() -> {
             int count = 3 + RAND.nextInt(3);
             player.addItem(new ItemStack(Items.EMERALD, count));
             msg(player, "§9Rare! " + count + " emeralds!");
         });
-
-        // Enchanted bow Power III Infinity
         pool.add(() -> {
             ItemStack bow = new ItemStack(Items.BOW);
             bow.enchant(level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT)
@@ -242,8 +301,6 @@ public class ChaosDiceItem extends Item {
             player.addItem(bow);
             msg(player, "§9Rare! An enchanted bow!");
         });
-
-        // Full iron armor enchanted Prot II
         pool.add(() -> {
             List<ItemStack> armor = List.of(
                     new ItemStack(Items.IRON_HELMET),
@@ -258,48 +315,116 @@ public class ChaosDiceItem extends Item {
             });
             msg(player, "§9Rare! Enchanted iron armor!");
         });
-
-        // Strength II 3 min
         pool.add(() -> {
             player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, 3600, 1));
             msg(player, "§9Rare! Strength surges through you!");
         });
-
-        // Night Vision 5 min
         pool.add(() -> {
             player.addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, 6000, 0));
             msg(player, "§9Rare! You can see in the dark!");
         });
-
-        // 16x obsidian
         pool.add(() -> {
             player.addItem(new ItemStack(Items.OBSIDIAN, 16));
             msg(player, "§9Rare! Obsidian materializes!");
         });
-
-        // 16x XP bottles
         pool.add(() -> {
             player.addItem(new ItemStack(Items.EXPERIENCE_BOTTLE, 16));
             msg(player, "§9Rare! Bottles of experience!");
         });
-
-        // Saddle + iron horse armor
         pool.add(() -> {
             player.addItem(new ItemStack(Items.SADDLE));
             player.addItem(new ItemStack(Items.IRON_HORSE_ARMOR));
             msg(player, "§9Rare! Ready to ride!");
         });
-
-        // Trident
         pool.add(() -> {
             player.addItem(new ItemStack(Items.TRIDENT));
             msg(player, "§9Rare! A trident from the depths!");
         });
-
-        // 32x gold ingots
         pool.add(() -> {
             player.addItem(new ItemStack(Items.GOLD_INGOT, 32));
             msg(player, "§9Rare! Gold pours forth!");
+        });
+
+        // NEW — enchanted fishing rod
+        pool.add(() -> {
+            ItemStack rod = new ItemStack(Items.FISHING_ROD);
+            rod.enchant(level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT)
+                    .getOrThrow(Enchantments.LUCK_OF_THE_SEA), 3);
+            rod.enchant(level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT)
+                    .getOrThrow(Enchantments.LURE), 2);
+            player.addItem(rod);
+            msg(player, "§9Rare! The luckiest fishing rod!");
+        });
+
+        // NEW — random music disc
+        pool.add(() -> {
+            List<Item> discs = List.of(
+                    Items.MUSIC_DISC_13, Items.MUSIC_DISC_CAT, Items.MUSIC_DISC_BLOCKS,
+                    Items.MUSIC_DISC_CHIRP, Items.MUSIC_DISC_FAR, Items.MUSIC_DISC_MALL,
+                    Items.MUSIC_DISC_MELLOHI, Items.MUSIC_DISC_STAL, Items.MUSIC_DISC_STRAD,
+                    Items.MUSIC_DISC_WARD, Items.MUSIC_DISC_11, Items.MUSIC_DISC_WAIT,
+                    Items.MUSIC_DISC_OTHERSIDE, Items.MUSIC_DISC_PIGSTEP, Items.MUSIC_DISC_5
+            );
+            player.addItem(new ItemStack(discs.get(RAND.nextInt(discs.size()))));
+            msg(player, "§9Rare! A random music disc!");
+        });
+
+        // NEW — full golden armor Fire Prot III
+        pool.add(() -> {
+            List<ItemStack> armor = List.of(
+                    new ItemStack(Items.GOLDEN_HELMET),
+                    new ItemStack(Items.GOLDEN_CHESTPLATE),
+                    new ItemStack(Items.GOLDEN_LEGGINGS),
+                    new ItemStack(Items.GOLDEN_BOOTS)
+            );
+            armor.forEach(a -> {
+                a.enchant(level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT)
+                        .getOrThrow(Enchantments.FIRE_PROTECTION), 3);
+                player.addItem(a);
+            });
+            msg(player, "§9Rare! Golden armor, fireproof!");
+        });
+
+        // NEW — slow falling 5 min
+        pool.add(() -> {
+            player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 6000, 0));
+            msg(player, "§9Rare! You feel weightless!");
+        });
+
+        // NEW — 8x chorus fruit
+        pool.add(() -> {
+            player.addItem(new ItemStack(Items.CHORUS_FRUIT, 8));
+            msg(player, "§9Rare! Chorus fruit from the End!");
+        });
+
+        // NEW — crossbow Quick Charge III + Multishot
+        pool.add(() -> {
+            ItemStack crossbow = new ItemStack(Items.CROSSBOW);
+            crossbow.enchant(level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT)
+                    .getOrThrow(Enchantments.QUICK_CHARGE), 3);
+            crossbow.enchant(level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT)
+                    .getOrThrow(Enchantments.MULTISHOT), 1);
+            player.addItem(crossbow);
+            msg(player, "§9Rare! A rapid-fire crossbow!");
+        });
+
+        // NEW — 16x prismarine shards + 8x crystals
+        pool.add(() -> {
+            player.addItem(new ItemStack(Items.PRISMARINE_SHARD, 16));
+            player.addItem(new ItemStack(Items.PRISMARINE_CRYSTALS, 8));
+            msg(player, "§9Rare! Treasures from the ocean monument!");
+        });
+
+        // NEW — conduit
+        pool.add(() -> {
+            player.addItem(new ItemStack(Items.CONDUIT));
+            msg(player, "§9Rare! A conduit of the deep!");
+        });
+
+        // NEW — 8x ghast tears
+        pool.add(() -> {
+            player.addItem(new ItemStack(Items.GHAST_TEAR, 8));
+            msg(player, "§9Rare! Ghast tears, still warm.");
         });
 
         return pool;
@@ -312,7 +437,6 @@ public class ChaosDiceItem extends Item {
     private List<Runnable> veryRareEffects(Level level, Player player) {
         List<Runnable> pool = new ArrayList<>();
 
-        // Elytra
         pool.add(() -> {
             ItemStack elytra = new ItemStack(Items.ELYTRA);
             elytra.enchant(level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT)
@@ -320,15 +444,10 @@ public class ChaosDiceItem extends Item {
             player.addItem(elytra);
             msg(player, "§5Very Rare! Wings of chaos!");
         });
-
-        // Enchanted golden apple
         pool.add(() -> {
             player.addItem(new ItemStack(Items.ENCHANTED_GOLDEN_APPLE));
             msg(player, "§5Very Rare! A golden apple of legends!");
         });
-
-
-        // Mending + Unbreaking III book
         pool.add(() -> {
             ItemStack book = new ItemStack(Items.ENCHANTED_BOOK);
             book.enchant(level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT)
@@ -338,11 +457,63 @@ public class ChaosDiceItem extends Item {
             player.addItem(book);
             msg(player, "§5Very Rare! Mending + Unbreaking III book!");
         });
-
-        // Beacon
         pool.add(() -> {
             player.addItem(new ItemStack(Items.BEACON));
             msg(player, "§5Very Rare! A beacon of power!");
+        });
+
+        // NEW — heart of the sea
+        pool.add(() -> {
+            player.addItem(new ItemStack(Items.HEART_OF_THE_SEA));
+            msg(player, "§5Very Rare! The heart of the sea!");
+        });
+
+        // NEW — dragon egg
+        pool.add(() -> {
+            player.addItem(new ItemStack(Items.DRAGON_EGG));
+            msg(player, "§5Very Rare! A dragon egg... handle with care.");
+        });
+
+        // NEW — 16x sponge
+        pool.add(() -> {
+            player.addItem(new ItemStack(Items.SPONGE, 16));
+            msg(player, "§5Very Rare! Sponges from the deep!");
+        });
+
+        // NEW — 4x shulker shells
+        pool.add(() -> {
+            player.addItem(new ItemStack(Items.SHULKER_SHELL, 4));
+            msg(player, "§5Very Rare! Shulker shells appear!");
+        });
+
+        // NEW — 4x netherite scrap
+        pool.add(() -> {
+            player.addItem(new ItemStack(Items.NETHERITE_SCRAP, 4));
+            msg(player, "§5Very Rare! Netherite scrap from the void!");
+        });
+
+        // NEW — 32x echo shards
+        pool.add(() -> {
+            player.addItem(new ItemStack(Items.ECHO_SHARD, 32));
+            msg(player, "§5Very Rare! Echoes of the ancient city!");
+        });
+
+        // NEW — netherite upgrade smithing template
+        pool.add(() -> {
+            player.addItem(new ItemStack(Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE));
+            msg(player, "§5Very Rare! A netherite upgrade template!");
+        });
+
+        // NEW — all positive effects 60s
+        pool.add(() -> {
+            player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 1200, 1));
+            player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, 1200, 1));
+            player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 1200, 1));
+            player.addEffect(new MobEffectInstance(MobEffects.JUMP, 1200, 1));
+            player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 1200, 1));
+            player.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 1200, 0));
+            player.addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, 1200, 0));
+            msg(player, "§5Very Rare! Blessed with all powers!");
         });
 
         return pool;
@@ -355,7 +526,6 @@ public class ChaosDiceItem extends Item {
     private List<Runnable> epicEffects(Level level, Player player) {
         List<Runnable> pool = new ArrayList<>();
 
-        // Enchanted bow Power V, Flame, Infinity, Unbreaking III
         pool.add(() -> {
             ItemStack bow = new ItemStack(Items.BOW);
             bow.enchant(level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT)
@@ -369,8 +539,6 @@ public class ChaosDiceItem extends Item {
             player.addItem(bow);
             msg(player, "§6Epic! The ultimate bow!");
         });
-
-        // All max positive effects 3 min
         pool.add(() -> {
             player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 3600, 2));
             player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, 3600, 2));
@@ -382,51 +550,166 @@ public class ChaosDiceItem extends Item {
             player.addEffect(new MobEffectInstance(MobEffects.ABSORPTION, 3600, 4));
             msg(player, "§6Epic! Godlike powers for 3 minutes!");
         });
-
-        // 5x enchanted golden apples
         pool.add(() -> {
             player.addItem(new ItemStack(Items.ENCHANTED_GOLDEN_APPLE, 5));
             msg(player, "§6Epic! Five enchanted golden apples!");
         });
 
-        // Loot room — 3x3 obsidian platform with chests
+        // Loot room
         pool.add(() -> {
-            ServerLevel serverLevel = (ServerLevel) level;
             BlockPos center = player.blockPosition().below();
             List<ItemStack> loot = List.of(
                     new ItemStack(Items.DIAMOND, 4),
                     new ItemStack(Items.ENCHANTED_GOLDEN_APPLE, 1),
                     new ItemStack(Items.TOTEM_OF_UNDYING, 1)
             );
-
-            // Place obsidian platform
             for (int x = -1; x <= 1; x++) {
                 for (int z = -1; z <= 1; z++) {
                     level.setBlock(center.offset(x, 0, z),
-                            net.minecraft.world.level.block.Blocks.OBSIDIAN.defaultBlockState(),
-                            3);
+                            Blocks.OBSIDIAN.defaultBlockState(), 3);
                 }
             }
-
-            // Place 4 chests at corners and fill them
             List<BlockPos> chestPositions = List.of(
-                    center.offset(-1, 1, -1),
-                    center.offset(1, 1, -1),
-                    center.offset(-1, 1, 1),
-                    center.offset(1, 1, 1)
+                    center.offset(-1, 1, -1), center.offset(1, 1, -1),
+                    center.offset(-1, 1, 1),  center.offset(1, 1, 1)
             );
-
             for (BlockPos chestPos : chestPositions) {
-                level.setBlock(chestPos,
-                        net.minecraft.world.level.block.Blocks.CHEST.defaultBlockState(), 3);
-                if (level.getBlockEntity(chestPos) instanceof
-                        net.minecraft.world.level.block.entity.ChestBlockEntity chest) {
+                level.setBlock(chestPos, Blocks.CHEST.defaultBlockState(), 3);
+                if (level.getBlockEntity(chestPos) instanceof ChestBlockEntity chest) {
                     for (int i = 0; i < loot.size(); i++) {
                         chest.setItem(i, loot.get(i).copy());
                     }
                 }
             }
             msg(player, "§6Epic! A loot room has appeared around you!");
+        });
+
+        // NEW — XP Overload 20–40 levels
+        pool.add(() -> {
+            int levels = 20 + RAND.nextInt(21);
+            player.giveExperienceLevels(levels);
+            msg(player, "§6Epic! +" + levels + " XP levels!");
+        });
+
+        // NEW — Chaos Fishing: 10 random fish/treasure items
+        pool.add(() -> {
+            List<ItemStack> fishLoot = new ArrayList<>(List.of(
+                    new ItemStack(Items.COD, 3),
+                    new ItemStack(Items.SALMON, 3),
+                    new ItemStack(Items.TROPICAL_FISH, 2),
+                    new ItemStack(Items.PUFFERFISH, 1),
+                    new ItemStack(Items.NAUTILUS_SHELL, 2),
+                    new ItemStack(Items.SADDLE),
+                    new ItemStack(Items.NAME_TAG),
+                    new ItemStack(Items.BOW),
+                    new ItemStack(Items.ENCHANTED_BOOK),
+                    new ItemStack(Items.LILY_PAD, 4)
+            ));
+            if (!(level instanceof ServerLevel serverLevel)) return;
+            int currentTick = serverLevel.getServer().getTickCount();
+            for (int i = 0; i < fishLoot.size(); i++) {
+                final ItemStack drop = fishLoot.get(i);
+                final int delay = i * 4;
+                serverLevel.getServer().tell(new TickTask(currentTick + delay, () -> {
+                    double ox = (RAND.nextDouble() - 0.5) * 3;
+                    double oz = (RAND.nextDouble() - 0.5) * 3;
+                    ItemEntity entity = new ItemEntity(serverLevel,
+                            player.getX() + ox, player.getY() + 0.5, player.getZ() + oz, drop);
+                    entity.setDeltaMovement(
+                            (RAND.nextDouble() - 0.5) * 0.2, 0.3, (RAND.nextDouble() - 0.5) * 0.2);
+                    serverLevel.addFreshEntity(entity);
+                }));
+            }
+            msg(player, "§6Epic! Chaos fishing — 10 catches at once!");
+        });
+
+        // NEW — Mob Grinder: 20 passive mobs spawned dead with drops
+        pool.add(() -> {
+            if (!(level instanceof ServerLevel serverLevel)) return;
+            List<EntityType<?>> passiveMobs = List.of(
+                    EntityType.COW, EntityType.PIG, EntityType.SHEEP,
+                    EntityType.CHICKEN, EntityType.RABBIT
+            );
+            int currentTick = serverLevel.getServer().getTickCount();
+            for (int i = 0; i < 20; i++) {
+                final int fi = i;
+                serverLevel.getServer().tell(new TickTask(currentTick + fi * 2, () -> {
+                    EntityType<?> type = passiveMobs.get(RAND.nextInt(passiveMobs.size()));
+                    double ox = (RAND.nextDouble() - 0.5) * 10;
+                    double oz = (RAND.nextDouble() - 0.5) * 10;
+                    var mob = type.create(serverLevel);
+                    if (mob != null) {
+                        mob.moveTo(player.getX() + ox, player.getY(), player.getZ() + oz, 0, 0);
+                        serverLevel.addFreshEntity(mob);
+                        mob.kill();
+                    }
+                }));
+            }
+            msg(player, "§6Epic! The mob grinder activates!");
+        });
+
+        // NEW — Instant Mineshaft: shaft down with ladders and chest
+        pool.add(() -> {
+            BlockPos start = player.blockPosition();
+            // Dig 5 blocks down with ladders
+            for (int i = 1; i <= 5; i++) {
+                BlockPos shaft = start.below(i);
+                level.setBlock(shaft, Blocks.AIR.defaultBlockState(), 3);
+                // Place ladder on north wall of shaft
+                level.setBlock(shaft.north(),
+                        Blocks.LADDER.defaultBlockState()
+                                .setValue(net.minecraft.world.level.block.LadderBlock.FACING,
+                                        net.minecraft.core.Direction.SOUTH), 3);
+            }
+            // Chest at bottom with loot
+            BlockPos chestPos = start.below(5).below();
+            level.setBlock(chestPos, Blocks.CHEST.defaultBlockState(), 3);
+            if (level.getBlockEntity(chestPos) instanceof ChestBlockEntity chest) {
+                chest.setItem(0, new ItemStack(Items.IRON_PICKAXE));
+                chest.setItem(1, new ItemStack(Items.TORCH, 16));
+                chest.setItem(2, new ItemStack(Items.BREAD, 8));
+                chest.setItem(3, new ItemStack(Items.IRON_INGOT, 8));
+                chest.setItem(4, new ItemStack(Items.GOLD_INGOT, 4));
+                chest.setItem(5, new ItemStack(Items.DIAMOND, 1 + RAND.nextInt(3)));
+            }
+            msg(player, "§6Epic! A mineshaft opens beneath you!");
+        });
+
+        // NEW — Chaos Garden: 5x5 fully grown crops
+        pool.add(() -> {
+            BlockPos base = player.blockPosition().below();
+            List<net.minecraft.world.level.block.state.BlockState> crops = List.of(
+                    Blocks.WHEAT.defaultBlockState()
+                            .setValue(net.minecraft.world.level.block.CropBlock.AGE, 7),
+                    Blocks.CARROTS.defaultBlockState()
+                            .setValue(net.minecraft.world.level.block.CropBlock.AGE, 7),
+                    Blocks.POTATOES.defaultBlockState()
+                            .setValue(net.minecraft.world.level.block.CropBlock.AGE, 7)
+            );
+            for (int x = -2; x <= 2; x++) {
+                for (int z = -2; z <= 2; z++) {
+                    BlockPos soil = base.offset(x, 0, z);
+                    BlockPos crop = soil.above();
+                    level.setBlock(soil, Blocks.FARMLAND.defaultBlockState(), 3);
+                    level.setBlock(crop, crops.get(RAND.nextInt(crops.size())), 3);
+                }
+            }
+            msg(player, "§6Epic! A chaos garden blooms around you!");
+        });
+
+        // NEW — max enchant crossbow
+        pool.add(() -> {
+            ItemStack crossbow = new ItemStack(Items.CROSSBOW);
+            crossbow.enchant(level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT)
+                    .getOrThrow(Enchantments.QUICK_CHARGE), 3);
+            crossbow.enchant(level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT)
+                    .getOrThrow(Enchantments.MULTISHOT), 1);
+            crossbow.enchant(level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT)
+                    .getOrThrow(Enchantments.PIERCING), 4);
+            crossbow.enchant(level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT)
+                    .getOrThrow(Enchantments.UNBREAKING), 3);
+            player.addItem(crossbow);
+            msg(player, "§6Epic! The ultimate crossbow!");
         });
 
         return pool;
@@ -439,7 +722,7 @@ public class ChaosDiceItem extends Item {
     private List<Runnable> legendaryEffects(Level level, Player player) {
         List<Runnable> pool = new ArrayList<>();
 
-        // Treasure rain — 20 items drop from sky over 5 seconds
+        // Treasure rain
         pool.add(() -> {
             if (!(level instanceof ServerLevel serverLevel)) return;
             List<ItemStack> treasures = new ArrayList<>(List.of(
@@ -455,7 +738,7 @@ public class ChaosDiceItem extends Item {
             int currentTick = serverLevel.getServer().getTickCount();
             for (int i = 0; i < treasures.size(); i++) {
                 final ItemStack drop = treasures.get(i);
-                final int delay = i * 6; // every 6 ticks (~0.3s apart)
+                final int delay = i * 6;
                 serverLevel.getServer().tell(new TickTask(currentTick + delay, () -> {
                     double ox = (RAND.nextDouble() - 0.5) * 6;
                     double oz = (RAND.nextDouble() - 0.5) * 6;
@@ -468,7 +751,7 @@ public class ChaosDiceItem extends Item {
             msg(player, "§e§lLEGENDARY! Treasure rains from the sky!");
         });
 
-        // Chaos Storm — 10 lightning bolts in a circle + loot piles
+        // Chaos Storm
         pool.add(() -> {
             if (!(level instanceof ServerLevel serverLevel)) return;
             int currentTick = serverLevel.getServer().getTickCount();
@@ -479,15 +762,12 @@ public class ChaosDiceItem extends Item {
                     double bx = player.getX() + Math.cos(angle) * 5;
                     double bz = player.getZ() + Math.sin(angle) * 5;
                     double by = player.getY();
-
                     LightningBolt bolt = EntityType.LIGHTNING_BOLT.create(serverLevel);
                     if (bolt != null) {
                         bolt.moveTo(bx, by, bz);
                         bolt.setVisualOnly(true);
                         serverLevel.addFreshEntity(bolt);
                     }
-
-                    // Drop random loot at each strike
                     List<ItemStack> strikeLoot = List.of(
                             new ItemStack(Items.DIAMOND, 2 + RAND.nextInt(4)),
                             new ItemStack(Items.GOLD_INGOT, 4 + RAND.nextInt(8)),
@@ -502,6 +782,71 @@ public class ChaosDiceItem extends Item {
             msg(player, "§e§lLEGENDARY! Chaos Storm strikes!");
         });
 
+        // NEW — Dice Jackpot: gives 5 more chaos dice
+        pool.add(() -> {
+            player.addItem(new ItemStack(player.getItemInHand(InteractionHand.MAIN_HAND).getItem(), 0));
+            // We reference the item via the registered item — replace with your actual item reference
+            // For now we give via the item's own class trick; wire up your ModItems reference here:
+            player.addItem(new ItemStack(ModItems.CHAOSDICE.get(), 5));
+            // Placeholder until you wire ModItems:
+            player.sendSystemMessage(Component.literal(
+                    "§e§lLEGENDARY! JACKPOT! 5 Chaos Dice appear! (wire ModItems.CHAOS_DICE.get())"));
+        });
+
+        // NEW — Ender Dragon loot drop
+        pool.add(() -> {
+            if (!(level instanceof ServerLevel serverLevel)) return;
+            List<ItemStack> endLoot = List.of(
+                    new ItemStack(Items.DRAGON_EGG),
+                    new ItemStack(Items.ELYTRA),
+                    new ItemStack(Items.SHULKER_BOX),
+                    new ItemStack(Items.END_CRYSTAL, 4),
+                    new ItemStack(Items.DRAGON_HEAD),
+                    new ItemStack(Items.CHORUS_FRUIT, 16)
+            );
+            int currentTick = serverLevel.getServer().getTickCount();
+            for (int i = 0; i < endLoot.size(); i++) {
+                final ItemStack drop = endLoot.get(i);
+                final int delay = i * 8;
+                serverLevel.getServer().tell(new TickTask(currentTick + delay, () -> {
+                    double ox = (RAND.nextDouble() - 0.5) * 4;
+                    double oz = (RAND.nextDouble() - 0.5) * 4;
+                    ItemEntity entity = new ItemEntity(serverLevel,
+                            player.getX() + ox, player.getY() + 5, player.getZ() + oz, drop);
+                    entity.setDeltaMovement(0, -0.15, 0);
+                    serverLevel.addFreshEntity(entity);
+                }));
+            }
+            msg(player, "§e§lLEGENDARY! The End yields its treasures!");
+        });
+
+        // NEW — Chaos Titan: buffed Iron Golem follows player
+        pool.add(() -> {
+            if (!(level instanceof ServerLevel serverLevel)) return;
+            var golem = EntityType.IRON_GOLEM.create(serverLevel);
+            if (golem == null) return;
+            golem.moveTo(player.getX() + 2, player.getY(), player.getZ() + 2, 0, 0);
+            // Buff its health
+            golem.getAttribute(Attributes.MAX_HEALTH).setBaseValue(500.0);
+            golem.setHealth(500.0f);
+            golem.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(30.0);
+            golem.setPlayerCreated(true);
+            serverLevel.addFreshEntity(golem);
+
+            // Remove after 5 minutes (6000 ticks)
+            int currentTick = serverLevel.getServer().getTickCount();
+            serverLevel.getServer().tell(new TickTask(currentTick + 6000, () -> {
+                if (!golem.isRemoved()) {
+                    // Dramatic goodbye particles
+                    serverLevel.sendParticles(ParticleTypes.EXPLOSION,
+                            golem.getX(), golem.getY() + 1, golem.getZ(),
+                            20, 0.5, 0.5, 0.5, 0.1);
+                    golem.discard();
+                }
+            }));
+            msg(player, "§e§lLEGENDARY! A Chaos Titan rises to protect you!");
+        });
+
         return pool;
     }
 
@@ -512,7 +857,6 @@ public class ChaosDiceItem extends Item {
     private List<Runnable> negativeEffects(Level level, Player player) {
         List<Runnable> pool = new ArrayList<>();
 
-        // Inventory scramble
         pool.add(() -> {
             var inventory = player.getInventory();
             List<ItemStack> items = new ArrayList<>();
@@ -525,22 +869,16 @@ public class ChaosDiceItem extends Item {
             }
             msg(player, "§4Negative! Your inventory has been scrambled!");
         });
-
-        // Gravity flip — launches player upward
         pool.add(() -> {
             player.setDeltaMovement(0, 2.5, 0);
             msg(player, "§4Negative! Gravity betrays you!");
         });
-
-        // Curse of Hunger — Hunger + Weakness + Slowness 2 min
         pool.add(() -> {
             player.addEffect(new MobEffectInstance(MobEffects.HUNGER, 2400, 2));
             player.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 2400, 1));
             player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 2400, 1));
             msg(player, "§4Negative! You feel cursed with hunger!");
         });
-
-        // Mob party — 5 random hostile mobs
         pool.add(() -> {
             List<EntityType<? extends Mob>> mobs = List.of(
                     EntityType.ZOMBIE, EntityType.SKELETON, EntityType.CREEPER,
@@ -558,8 +896,6 @@ public class ChaosDiceItem extends Item {
             }
             msg(player, "§4Negative! A mob party crashes your game!");
         });
-
-        // Item thief — scatters hotbar on ground
         pool.add(() -> {
             var inventory = player.getInventory();
             for (int i = 0; i < 9; i++) {
@@ -580,30 +916,22 @@ public class ChaosDiceItem extends Item {
             }
             msg(player, "§4Negative! Your hotbar was stolen!");
         });
-
-        // Blindness + Nausea 15s
         pool.add(() -> {
             player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 300, 0));
             player.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 300, 0));
             msg(player, "§4Negative! You can't see or think straight!");
         });
-
-        // Wither II 10s
         pool.add(() -> {
             player.addEffect(new MobEffectInstance(MobEffects.WITHER, 200, 1));
             msg(player, "§4Negative! Wither consumes you!");
         });
-
-        // Time Bandit — midnight + thunderstorm
         pool.add(() -> {
             if (level instanceof ServerLevel serverLevel) {
-                serverLevel.setDayTime(18000); // midnight
-                serverLevel.setWeatherParameters(0, 6000, true, true); // thunderstorm
+                serverLevel.setDayTime(18000);
+                serverLevel.setWeatherParameters(0, 6000, true, true);
             }
             msg(player, "§4Negative! The sky turns dark and stormy!");
         });
-
-        // Spawn Wither
         pool.add(() -> {
             WitherBoss wither = EntityType.WITHER.create(level);
             if (wither != null) {
@@ -611,6 +939,75 @@ public class ChaosDiceItem extends Item {
                 level.addFreshEntity(wither);
             }
             msg(player, "§4Negative... Something dark stirs nearby...");
+        });
+
+
+        // NEW — Anvil Rain: 5 falling anvils from above
+        pool.add(() -> {
+            if (!(level instanceof ServerLevel serverLevel)) return;
+            int currentTick = serverLevel.getServer().getTickCount();
+            for (int i = 0; i < 5; i++) {
+                final int fi = i;
+                serverLevel.getServer().tell(new TickTask(currentTick + fi * 8, () -> {
+                    double ox = (RAND.nextDouble() - 0.5) * 4;
+                    double oz = (RAND.nextDouble() - 0.5) * 4;
+                    FallingBlockEntity anvil = FallingBlockEntity.fall(
+                            serverLevel,
+                            BlockPos.containing(player.getX() + ox, player.getY() + 15, player.getZ() + oz),
+                            Blocks.ANVIL.defaultBlockState()
+                    );
+                    anvil.dropItem = true;
+                    anvil.setHurtsEntities(6.0f, 40);
+                }));
+            }
+            msg(player, "§4Negative! Anvils fall from the sky!");
+        });
+
+        // NEW — Mining Fatigue III for 2 minutes
+        pool.add(() -> {
+            player.addEffect(new MobEffectInstance(MobEffects.DIG_SLOWDOWN, 2400, 2));
+            msg(player, "§4Negative! Your arms feel like lead!");
+        });
+
+        // NEW — Levitation 10 seconds
+        pool.add(() -> {
+            player.addEffect(new MobEffectInstance(MobEffects.LEVITATION, 200, 1));
+            msg(player, "§4Negative! You're floating away!");
+        });
+
+        // NEW — Bad Omen V
+        pool.add(() -> {
+            player.addEffect(new MobEffectInstance(MobEffects.BAD_OMEN, 120000, 4));
+            msg(player, "§4Negative! A dark omen falls upon you...");
+        });
+
+        // NEW — Amnesia: remove 10 XP levels
+        pool.add(() -> {
+            int levelsToRemove = Math.min(10, player.experienceLevel);
+            player.giveExperienceLevels(-levelsToRemove);
+            msg(player, "§4Negative! You forgot " + levelsToRemove + " levels of experience!");
+        });
+
+        // NEW — Size Swap: Slowness V + Weakness III + Resistance II
+        pool.add(() -> {
+            player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 2400, 4));
+            player.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 2400, 2));
+            player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 2400, 1));
+            msg(player, "§4Negative! You shrink into helplessness!");
+        });
+
+        // NEW — Phantom Swarm: 8 phantoms from above
+        pool.add(() -> {
+            for (int i = 0; i < 8; i++) {
+                Phantom phantom = EntityType.PHANTOM.create(level);
+                if (phantom != null) {
+                    double ox = (RAND.nextDouble() - 0.5) * 8;
+                    double oz = (RAND.nextDouble() - 0.5) * 8;
+                    phantom.moveTo(player.getX() + ox, player.getY() + 10, player.getZ() + oz, 0, 0);
+                    level.addFreshEntity(phantom);
+                }
+            }
+            msg(player, "§4Negative! A phantom swarm descends!");
         });
 
         return pool;

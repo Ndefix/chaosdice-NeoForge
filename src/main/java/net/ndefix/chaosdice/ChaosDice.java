@@ -19,9 +19,10 @@ public class ChaosDice {
     public static final Logger LOGGER = LogUtils.getLogger();
 
     public ChaosDice(IEventBus modEventBus, ModContainer modContainer) {
-        // Rejestracja przedmiotów
-        ModItems.register(modEventBus);
+        // Rejestracja konfiguracji
+        modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
 
+        ModItems.register(modEventBus);
         // REJESTRACJA ZAKŁADKI KREATYWNEJ
         ModCreativeModeTabs.register(modEventBus);
 
@@ -29,7 +30,6 @@ public class ChaosDice {
         modEventBus.addListener(this::addCreative);
 
         NeoForge.EVENT_BUS.register(this);
-        modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
