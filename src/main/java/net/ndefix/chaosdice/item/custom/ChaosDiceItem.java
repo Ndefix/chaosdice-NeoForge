@@ -29,6 +29,7 @@ import net.minecraft.world.entity.animal.horse.Horse;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.GameRules;
@@ -83,6 +84,22 @@ public class ChaosDiceItem extends Item {
         }
 
         return InteractionResultHolder.sidedSuccess(itemStack, level.isClientSide());
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+        tooltipComponents.add(
+                Component.literal("The chaos within stirs, waiting...")
+                        .withStyle(style -> style.withColor(0x8A2BE2).withItalic(true))
+        );
+        tooltipComponents.add(
+                Component.literal("Fate is not yours to command.")
+                        .withStyle(style -> style.withColor(0x4B0082).withItalic(true))
+        );
+        tooltipComponents.add(
+                Component.literal("Roll. And accept what comes.")
+                        .withStyle(style -> style.withColor(0x2E0854).withItalic(true))
+        );
     }
 
     // -------------------------------------------------------------------------
