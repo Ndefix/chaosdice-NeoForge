@@ -51,7 +51,88 @@ public class ModCompatibility {
     // EPIC
     // -------------------------------------------------------
 
-    public static void addEpicEffects(List<Runnable> pool, Player player) {}
+    public static void addEpicEffects(List<Runnable> pool, Player player) {
+        if (isLoaded("simplyswords")) {
+            //pool.clear();  temporarily force only SS items
+            pool.add(() -> {
+                ItemStack sword = getItem("simplyswords", "whisperwind");
+                if (!sword.isEmpty()) {
+                    player.addItem(sword);
+                    msg(player, "§6Epic! A whisperwind from Simply Swords!");
+                }
+            });
+
+            pool.add(() -> {
+                ItemStack sword = getItem("simplyswords", "caelestis");
+                if (!sword.isEmpty()) {
+                    player.addItem(sword);
+                    msg(player, "§6Epic! A caelestis from Simply Swords!");
+                }
+            });
+
+            pool.add(() -> {
+                ItemStack sword = getItem("simplyswords", "shadowsting");
+                if (!sword.isEmpty()) {
+                    player.addItem(sword);
+                    msg(player, "§6Epic! A shadowsting from Simply Swords!");
+                }
+            });
+
+            pool.add(() -> {
+                ItemStack sword = getItem("simplyswords", "brimstone_claymore");
+                if (!sword.isEmpty()) {
+                    player.addItem(sword);
+                    msg(player, "§6Epic! A brimstone claymore from Simply Swords!");
+                }
+            });
+
+            pool.add(() -> {
+                ItemStack sword = getItem("simplyswords", "watching_warglaive");
+                if (!sword.isEmpty()) {
+                    player.addItem(sword);
+                    msg(player, "§6Epic! A watching warglaive from Simply Swords!");
+                }
+            });
+
+            pool.add(() -> {
+                ItemStack sword = getItem("simplyswords", "soulrender");
+                if (!sword.isEmpty()) {
+                    player.addItem(sword);
+                    msg(player, "§6Epic! A soulrender from Simply Swords!");
+                }
+
+            });
+
+            pool.add(() -> {
+                ItemStack sword = getItem("simplyswords", "enigma");
+                if (!sword.isEmpty()) {
+                    player.addItem(sword);
+                    msg(player, "§6Epic! An enigma from Simply Swords!");
+                }
+
+            });
+
+            pool.add(() -> {
+                ItemStack sword = getItem("simplyswords", "arcanethyst");
+                if (!sword.isEmpty()) {
+                    player.addItem(sword);
+                    msg(player, "§6Epic! An arcanethyst from Simply Swords!");
+                }
+
+            });
+
+
+            pool.add(() -> {
+                ItemStack sword = getItem("simplyswords", "stars_edge");
+                if (!sword.isEmpty()) {
+                    player.addItem(sword);
+                    msg(player, "§6Epic! star's edge from Simply Swords!");
+                }
+
+            });
+
+        }
+    }
 
     // -------------------------------------------------------
     // LEGENDARY
