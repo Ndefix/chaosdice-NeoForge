@@ -39,19 +39,63 @@ public class ModCompatibility {
     // RARE
     // -------------------------------------------------------
 
-    public static void addRareEffects(List<Runnable> pool, Player player) {}
+    public static void addRareEffects(List<Runnable> pool, Player player) {
+        // start artifacts
+        if (isLoaded("artifacts")) {
+            List<String> items = List.of(
+                    "umbrella", "novelty_drinking_hat", "snorkel", "villager_hat",
+                    "cowboy_hat", "angler_hat", "flame_pendant", "panic_necklace",
+                    "lucky_scarf", "feral_claws", "digging_claws", "pocket_piston",
+                    "flippers", "bunny_hoppers", "running_shoes", "snowshoes",
+                    "night_vision_goggles"
+            );
+            for (String id : items) {
+                pool.add(() -> {
+                    ItemStack item = getItem("artifacts", id);
+                    if (!item.isEmpty()) {
+                        player.addItem(item);
+                        msg(player, "§9Rare! Something from Artifacts!");
+                    }
+                });
+            }
+        }
+    }
 
     // -------------------------------------------------------
     // VERY RARE
     // -------------------------------------------------------
 
-    public static void addVeryRareEffects(List<Runnable> pool, Player player) {}
+    public static void addVeryRareEffects(List<Runnable> pool, Player player) {
+        // start artifacts
+        if (isLoaded("artifacts")) {
+            List<String> items = List.of(
+                    "superstitious_hat", "scarf_of_invisibility", "shock_pendant",
+                    "thorn_pendant", "cross_necklace", "antidote_vessel",
+                    "cloud_in_a_bottle", "obsidian_skull", "universal_attractor",
+                    "warp_drive", "fire_gauntlet", "golden_hook", "power_glove",
+                    "vampiric_glove", "aqua_dashers", "steadfast_spikes", "strider_shoes",
+                    "crystal_heart", "helium_flamingo", "chorus_totem", "onion_ring",
+                    "pickaxe_heater", "withered_bracelet", "charm_of_shrinking",
+                    "kitty_slippers", "rooted_boots"
+            );
+            for (String id : items) {
+                pool.add(() -> {
+                    ItemStack item = getItem("artifacts", id);
+                    if (!item.isEmpty()) {
+                        player.addItem(item);
+                        msg(player, "§5Very Rare! Something from Artifacts!");
+                    }
+                });
+            }
+        }
+    }
 
     // -------------------------------------------------------
     // EPIC
     // -------------------------------------------------------
 
     public static void addEpicEffects(List<Runnable> pool, Player player) {
+        // Start SS
         if (isLoaded("simplyswords")) {
             //pool.clear();  temporarily force only SS items
             pool.add(() -> {
@@ -131,7 +175,37 @@ public class ModCompatibility {
 
             });
 
+            pool.add(() -> {
+                ItemStack sword = getItem("simplyswords", "wraithfang");
+                if (!sword.isEmpty()) {
+                    player.addItem(sword);
+                    msg(player, "§6Epic! wraithfang from Simply Swords!");
+                }
+
+            });
+
+            pool.add(() -> {
+                ItemStack sword = getItem("simplyswords", "magiscythe");
+                if (!sword.isEmpty()) {
+                    player.addItem(sword);
+                    msg(player, "§6Epic! magiscythe from Simply Swords!");
+                }
+
+            });
+
+            pool.add(() -> {
+                ItemStack sword = getItem("simplyswords", "ribboncleaver");
+                if (!sword.isEmpty()) {
+                    player.addItem(sword);
+                    msg(player, "§6Epic! ribboncleaver from Simply Swords!");
+                }
+
+            });
+
         }
+        // end SS
+
+
     }
 
     // -------------------------------------------------------
