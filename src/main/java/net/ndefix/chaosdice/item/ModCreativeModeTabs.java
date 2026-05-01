@@ -22,6 +22,8 @@ public class ModCreativeModeTabs {
                     .displayItems((parameters, output) -> {
                         // Tutaj dodajemy przedmioty do zakładki
                         output.accept(ModItems.CHAOSDICE.get());
+                        output.accept(ModItems.CURSEDDICE.get());
+                        output.accept(ModItems.BLESSEDDICE.get());
                     })
                     .build());
 

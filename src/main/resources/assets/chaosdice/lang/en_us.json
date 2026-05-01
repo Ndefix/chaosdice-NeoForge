@@ -1,4 +1,6 @@
 {
   "item.chaosdice.chaosdice": "Chaos Dice",
+  "item.chaosdice.curseddice": "Cursed Dice",
+  "item.chaosdice.blesseddice": "Blessed Dice",
   "creativetab.chaosdice.chaos_dice_tab": "Chaos Dice Mod"
 }

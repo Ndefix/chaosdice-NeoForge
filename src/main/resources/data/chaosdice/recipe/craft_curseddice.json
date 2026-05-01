@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": { "item": "minecraft:coal" },
+    "B": { "item": "minecraft:bone" },
+    "W": { "item": "minecraft:wither_skeleton_skull" },
+    "D": { "item": "chaosdice:chaosdice" }
+  },
+  "pattern": [
+    "CBC",
+    "BDB",
+    "CBC"
+  ],
+  "result": {
+    "count": 1,
+    "id": "chaosdice:curseddice"
+  }
+}
