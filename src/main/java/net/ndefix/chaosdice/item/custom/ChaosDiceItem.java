@@ -111,7 +111,7 @@ public class ChaosDiceItem extends Item {
         COMMON, RARE, VERY_RARE, EPIC, LEGENDARY, NEGATIVE
     }
 
-    private TierResult rollTier() {
+    protected TierResult rollTier() {
         int wCommon = Config.INSTANCE.commonWeight.get();
         int wRare = Config.INSTANCE.rareWeight.get();
         int wVRare = Config.INSTANCE.veryRareWeight.get();
@@ -138,7 +138,7 @@ public class ChaosDiceItem extends Item {
     // EFFECT DISPATCH — picks one random effect from the tier's pool
     // -------------------------------------------------------------------------
 
-    private void applyEffect(TierResult tier, Level level, Player player) {
+    protected void applyEffect(TierResult tier, Level level, Player player) {
         switch (tier) {
             case COMMON    -> pickRandom(commonEffects(player)).run();
             case RARE      -> pickRandom(rareEffects(level, player)).run();
@@ -149,7 +149,7 @@ public class ChaosDiceItem extends Item {
         }
     }
 
-    private Runnable pickRandom(List<Runnable> pool) {
+    protected Runnable pickRandom(List<Runnable> pool) {
         return pool.get(RAND.nextInt(pool.size()));
     }
 
@@ -157,7 +157,7 @@ public class ChaosDiceItem extends Item {
     // COMMON POOL
     // -------------------------------------------------------------------------
 
-    private List<Runnable> commonEffects(Player player) {
+    protected List<Runnable> commonEffects(Player player) {
         List<Runnable> pool = new ArrayList<>();
 
         pool.add(() -> {
@@ -304,7 +304,7 @@ public class ChaosDiceItem extends Item {
     // RARE POOL
     // -------------------------------------------------------------------------
 
-    private List<Runnable> rareEffects(Level level, Player player) {
+    protected List<Runnable> rareEffects(Level level, Player player) {
         List<Runnable> pool = new ArrayList<>();
 
         pool.add(() -> {
@@ -456,7 +456,7 @@ public class ChaosDiceItem extends Item {
     // VERY RARE POOL
     // -------------------------------------------------------------------------
 
-    private List<Runnable> veryRareEffects(Level level, Player player) {
+    protected List<Runnable> veryRareEffects(Level level, Player player) {
         List<Runnable> pool = new ArrayList<>();
 
         pool.add(() -> {
@@ -621,7 +621,7 @@ public class ChaosDiceItem extends Item {
     // EPIC POOL
     // -------------------------------------------------------------------------
 
-    private List<Runnable> epicEffects(Level level, Player player) {
+    protected List<Runnable> epicEffects(Level level, Player player) {
         List<Runnable> pool = new ArrayList<>();
 
         pool.add(() -> {
@@ -818,7 +818,7 @@ public class ChaosDiceItem extends Item {
     // LEGENDARY POOL
     // -------------------------------------------------------------------------
 
-    private List<Runnable> legendaryEffects(Level level, Player player) {
+    protected List<Runnable> legendaryEffects(Level level, Player player) {
         List<Runnable> pool = new ArrayList<>();
 
         // Treasure rain
@@ -929,7 +929,7 @@ public class ChaosDiceItem extends Item {
     // NEGATIVE POOL
     // -------------------------------------------------------------------------
 
-    private List<Runnable> negativeEffects(Level level, Player player) {
+    protected List<Runnable> negativeEffects(Level level, Player player) {
         List<Runnable> pool = new ArrayList<>();
 
         pool.add(() -> {
@@ -1093,7 +1093,7 @@ public class ChaosDiceItem extends Item {
     // RITUAL ANIMATION (unchanged)
     // -------------------------------------------------------------------------
 
-    private void spawnRitualSequence(TierResult tier, ServerLevel serverLevel, Player player, ItemEntity dice) {
+    protected void spawnRitualSequence(TierResult tier, ServerLevel serverLevel, Player player, ItemEntity dice) {
         int currentTick = serverLevel.getServer().getTickCount();
 
         SoundEvent revealSound = switch (tier) {
@@ -1233,16 +1233,16 @@ public class ChaosDiceItem extends Item {
     // HELPERS
     // -------------------------------------------------------------------------
 
-    private void msg(Player player, String text) {
+    protected void msg(Player player, String text) {
         player.sendSystemMessage(Component.literal(text));
     }
 
-    private void playSound(ServerLevel level, double x, double y, double z,
+    protected void playSound(ServerLevel level, double x, double y, double z,
                            SoundEvent sound, SoundSource source, float volume, float pitch) {
         level.playSound(null, x, y, z, sound, source, volume, pitch);
     }
 
-    private void spawnOrbitRing(ServerLevel level, ParticleOptions particle,
+    protected void spawnOrbitRing(ServerLevel level, ParticleOptions particle,
                                 double cx, double cy, double cz, double radius, int count) {
         for (int i = 0; i < count; i++) {
             double angle = (2 * Math.PI / count) * i;
@@ -1252,12 +1252,12 @@ public class ChaosDiceItem extends Item {
         }
     }
 
-    private void spawnBurst(ServerLevel level, ParticleOptions particle,
+    protected void spawnBurst(ServerLevel level, ParticleOptions particle,
                             double cx, double cy, double cz, int count, double speed) {
         level.sendParticles(particle, cx, cy, cz, count, 0.4, 0.4, 0.4, speed);
     }
 
-    private void spawnVerticalRing(ServerLevel level, ParticleOptions particle,
+    protected void spawnVerticalRing(ServerLevel level, ParticleOptions particle,
                                    double cx, double cy, double cz, double height, int count) {
         for (int i = 0; i < count; i++) {
             double t = (double) i / count;
