@@ -889,7 +889,7 @@ public class ChaosDiceItem extends Item {
             player.addItem(new ItemStack(ModItems.CHAOSDICE.get(), 5));
             // Placeholder until you wire ModItems:
             player.sendSystemMessage(Component.literal(
-                    "§e§lLEGENDARY! JACKPOT! 5 Chaos Dice appear! (wire ModItems.CHAOS_DICE.get())"));
+                    "§e§lLEGENDARY! JACKPOT! 5 Chaos Dice appear!"));
         });
 
         // NEW — Ender Dragon loot drop
@@ -919,32 +919,7 @@ public class ChaosDiceItem extends Item {
             msg(player, "§e§lLEGENDARY! The End yields its treasures!");
         });
 
-        // NEW — Chaos Titan: buffed Iron Golem follows player
-        pool.add(() -> {
-            if (!(level instanceof ServerLevel serverLevel)) return;
-            var golem = EntityType.IRON_GOLEM.create(serverLevel);
-            if (golem == null) return;
-            golem.moveTo(player.getX() + 2, player.getY(), player.getZ() + 2, 0, 0);
-            // Buff its health
-            golem.getAttribute(Attributes.MAX_HEALTH).setBaseValue(500.0);
-            golem.setHealth(500.0f);
-            golem.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(30.0);
-            golem.setPlayerCreated(true);
-            serverLevel.addFreshEntity(golem);
 
-            // Remove after 5 minutes (6000 ticks)
-            int currentTick = serverLevel.getServer().getTickCount();
-            serverLevel.getServer().tell(new TickTask(currentTick + 6000, () -> {
-                if (!golem.isRemoved()) {
-                    // Dramatic goodbye particles
-                    serverLevel.sendParticles(ParticleTypes.EXPLOSION,
-                            golem.getX(), golem.getY() + 1, golem.getZ(),
-                            20, 0.5, 0.5, 0.5, 0.1);
-                    golem.discard();
-                }
-            }));
-            msg(player, "§e§lLEGENDARY! A Chaos Titan rises to protect you!");
-        });
 
         ModCompatibility.addLegendaryEffects(pool, player);
         return pool;

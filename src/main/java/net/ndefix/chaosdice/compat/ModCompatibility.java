@@ -115,59 +115,29 @@ public class ModCompatibility {
         // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
         if (isLoaded("apotheosis")) {
 
-            // Gem Kit: 3 random high-purity gems + Sigil of Socketing
-            pool.add(() -> {
-                String[] gemTypes = {
-                        "core/solar", "core/lunar", "core/brawler", "core/breach",
-                        "core/combatant", "core/guardian", "core/lightning",
-                        "core/samurai", "core/slipstream", "core/splendor"
-                };
-
-                List<String> shuffled = new ArrayList<>(List.of(gemTypes));
-                Collections.shuffle(shuffled);
-
-                for (int i = 0; i < 3; i++) {
-                    ItemStack gem = getApothGem(shuffled.get(i), "flawless");
-                    if (!gem.isEmpty()) player.addItem(gem);
-                }
-
-                ItemStack sigil = getItem("apotheosis", "sigil_of_socketing");
-                if (!sigil.isEmpty()) player.addItem(sigil);
-
-                msg(player, "§6Epic! Three flawless gems and a Sigil of Socketing!");
-            });
-
-            // Perfect Gem
-            pool.add(() -> {
-                String[] gemTypes = {
-                        "core/solar", "core/lunar", "core/brawler", "core/breach",
-                        "core/combatant", "core/guardian", "core/lightning",
-                        "core/samurai", "core/slipstream", "core/splendor"
-                };
-                String chosen = gemTypes[(int) (Math.random() * gemTypes.length)];
-                ItemStack gem = getApothGem(chosen, "perfect");
-                if (!gem.isEmpty()) {
-                    player.addItem(gem);
-                    msg(player, "§6Epic! A perfect gem emerges from the chaos!");
-                }
-            });
-
-            // Reforging Bundle
+            // Reforging Bundle — all plain items, no special components needed
             pool.add(() -> {
                 ItemStack rebirth = getItem("apotheosis", "sigil_of_rebirth");
                 ItemStack enhance = getItem("apotheosis", "sigil_of_enhancement");
+                ItemStack socketing = getItem("apotheosis", "sigil_of_socketing");
 
-                if (!rebirth.isEmpty()) {
-                    rebirth.setCount(3);
-                    player.addItem(rebirth);
-                }
-                if (!enhance.isEmpty()) {
-                    enhance.setCount(2);
-                    player.addItem(enhance);
-                }
+                if (!rebirth.isEmpty()) { rebirth.setCount(3); player.addItem(rebirth); }
+                if (!enhance.isEmpty()) { enhance.setCount(2); player.addItem(enhance); }
+                if (!socketing.isEmpty()) { player.addItem(socketing); }
 
-                msg(player, "§6Epic! Reforging supplies from the void!");
+                msg(player, "§6Epic! Apotheosis reforging supplies from the void!");
             });
+
+            // Gem Dust bundle — plain item, safe to give
+            pool.add(() -> {
+                ItemStack dust = getItem("apotheosis", "gem_dust");
+                if (!dust.isEmpty()) {
+                    dust.setCount(16);
+                    player.addItem(dust);
+                    msg(player, "§6Epic! A pile of gem dust!");
+                }
+            });
+
         }
         // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         // MOD END: APOTHEOSIS
@@ -211,44 +181,15 @@ public class ModCompatibility {
         // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
         if (isLoaded("apotheosis")) {
 
-            // Full Apotheosis Legendary Haul
-            pool.add(() -> {
-                String[] allGemTypes = {
-                        "core/solar", "core/lunar", "core/brawler", "core/breach",
-                        "core/combatant", "core/guardian", "core/lightning",
-                        "core/samurai", "core/slipstream", "core/splendor"
-                };
-
-                int given = 0;
-                for (String type : allGemTypes) {
-                    ItemStack gem = getApothGem(type, "perfect");
-                    if (!gem.isEmpty()) {
-                        player.addItem(gem);
-                        given++;
-                    }
-                }
-
-                ItemStack withdrawal = getItem("apotheosis", "sigil_of_withdrawal");
-                ItemStack malice = getItem("apotheosis", "sigil_of_malice");
-                ItemStack enhance = getItem("apotheosis", "sigil_of_enhancement");
-
-                if (!withdrawal.isEmpty()) player.addItem(withdrawal);
-                if (!malice.isEmpty()) player.addItem(malice);
-                if (!enhance.isEmpty()) {
-                    enhance.setCount(5);
-                    player.addItem(enhance);
-                }
-
-                if (given > 0) {
-                    msg(player, "§e§lLEGENDARY! Every perfect gem rains from the chaos! (" + given + " gems)");
-                }
-            });
-
-            // Sigil Storm
+            // Sigil Storm — all plain items, zero component manipulation
             pool.add(() -> {
                 List<String> sigils = List.of(
-                        "sigil_of_socketing", "sigil_of_rebirth", "sigil_of_withdrawal",
-                        "sigil_of_enhancement", "sigil_of_malice", "sigil_of_unnaming"
+                        "sigil_of_socketing",
+                        "sigil_of_rebirth",
+                        "sigil_of_withdrawal",
+                        "sigil_of_enhancement",
+                        "sigil_of_malice",
+                        "sigil_of_unnaming"
                 );
 
                 int given = 0;
@@ -262,6 +203,16 @@ public class ModCompatibility {
                 }
                 if (given > 0) {
                     msg(player, "§e§lLEGENDARY! A storm of sigils! The forge is yours!");
+                }
+            });
+
+            // Gem Dust jackpot
+            pool.add(() -> {
+                ItemStack dust = getItem("apotheosis", "gem_dust");
+                if (!dust.isEmpty()) {
+                    dust.setCount(64);
+                    player.addItem(dust);
+                    msg(player, "§e§lLEGENDARY! 64 gem dust rains from the chaos!");
                 }
             });
         }
@@ -280,16 +231,5 @@ public class ModCompatibility {
     // APOTHEOSIS HELPER
     // -------------------------------------------------------
 
-    private static ItemStack getApothGem(String gemPath, String purity) {
-        ItemStack base = getItem("apotheosis", "gem");
-        if (base.isEmpty()) return ItemStack.EMPTY;
 
-        net.minecraft.nbt.CompoundTag tag = new net.minecraft.nbt.CompoundTag();
-        tag.putString("apotheosis:gem", "apotheosis:" + gemPath);
-        tag.putString("apotheosis:purity", purity);
-
-        base.applyComponents(net.minecraft.core.component.DataComponentPatch.EMPTY);
-
-        return base;
-    }
 }
