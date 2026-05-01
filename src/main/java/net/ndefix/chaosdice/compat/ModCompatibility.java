@@ -7,6 +7,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.fml.ModList;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ModCompatibility {
@@ -40,7 +42,10 @@ public class ModCompatibility {
     // -------------------------------------------------------
 
     public static void addRareEffects(List<Runnable> pool, Player player) {
-        // start artifacts
+
+        // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+        // MOD START: ARTIFACTS
+        // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
         if (isLoaded("artifacts")) {
             List<String> items = List.of(
                     "umbrella", "novelty_drinking_hat", "snorkel", "villager_hat",
@@ -59,6 +64,9 @@ public class ModCompatibility {
                 });
             }
         }
+        // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        // MOD END: ARTIFACTS
+        // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     }
 
     // -------------------------------------------------------
@@ -66,7 +74,10 @@ public class ModCompatibility {
     // -------------------------------------------------------
 
     public static void addVeryRareEffects(List<Runnable> pool, Player player) {
-        // start artifacts
+
+        // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+        // MOD START: ARTIFACTS
+        // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
         if (isLoaded("artifacts")) {
             List<String> items = List.of(
                     "superstitious_hat", "scarf_of_invisibility", "shock_pendant",
@@ -88,6 +99,9 @@ public class ModCompatibility {
                 });
             }
         }
+        // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        // MOD END: ARTIFACTS
+        // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     }
 
     // -------------------------------------------------------
@@ -95,124 +109,166 @@ public class ModCompatibility {
     // -------------------------------------------------------
 
     public static void addEpicEffects(List<Runnable> pool, Player player) {
-        // Start SS
-        if (isLoaded("simplyswords")) {
-            //pool.clear();  temporarily force only SS items
+
+        // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+        // MOD START: APOTHEOSIS
+        // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+        if (isLoaded("apotheosis")) {
+
+            // Gem Kit: 3 random high-purity gems + Sigil of Socketing
             pool.add(() -> {
-                ItemStack sword = getItem("simplyswords", "whisperwind");
-                if (!sword.isEmpty()) {
-                    player.addItem(sword);
-                    msg(player, "§6Epic! A whisperwind from Simply Swords!");
+                String[] gemTypes = {
+                        "core/solar", "core/lunar", "core/brawler", "core/breach",
+                        "core/combatant", "core/guardian", "core/lightning",
+                        "core/samurai", "core/slipstream", "core/splendor"
+                };
+
+                List<String> shuffled = new ArrayList<>(List.of(gemTypes));
+                Collections.shuffle(shuffled);
+
+                for (int i = 0; i < 3; i++) {
+                    ItemStack gem = getApothGem(shuffled.get(i), "flawless");
+                    if (!gem.isEmpty()) player.addItem(gem);
+                }
+
+                ItemStack sigil = getItem("apotheosis", "sigil_of_socketing");
+                if (!sigil.isEmpty()) player.addItem(sigil);
+
+                msg(player, "§6Epic! Three flawless gems and a Sigil of Socketing!");
+            });
+
+            // Perfect Gem
+            pool.add(() -> {
+                String[] gemTypes = {
+                        "core/solar", "core/lunar", "core/brawler", "core/breach",
+                        "core/combatant", "core/guardian", "core/lightning",
+                        "core/samurai", "core/slipstream", "core/splendor"
+                };
+                String chosen = gemTypes[(int) (Math.random() * gemTypes.length)];
+                ItemStack gem = getApothGem(chosen, "perfect");
+                if (!gem.isEmpty()) {
+                    player.addItem(gem);
+                    msg(player, "§6Epic! A perfect gem emerges from the chaos!");
                 }
             });
 
+            // Reforging Bundle
             pool.add(() -> {
-                ItemStack sword = getItem("simplyswords", "caelestis");
-                if (!sword.isEmpty()) {
-                    player.addItem(sword);
-                    msg(player, "§6Epic! A caelestis from Simply Swords!");
-                }
-            });
+                ItemStack rebirth = getItem("apotheosis", "sigil_of_rebirth");
+                ItemStack enhance = getItem("apotheosis", "sigil_of_enhancement");
 
-            pool.add(() -> {
-                ItemStack sword = getItem("simplyswords", "shadowsting");
-                if (!sword.isEmpty()) {
-                    player.addItem(sword);
-                    msg(player, "§6Epic! A shadowsting from Simply Swords!");
+                if (!rebirth.isEmpty()) {
+                    rebirth.setCount(3);
+                    player.addItem(rebirth);
                 }
-            });
-
-            pool.add(() -> {
-                ItemStack sword = getItem("simplyswords", "brimstone_claymore");
-                if (!sword.isEmpty()) {
-                    player.addItem(sword);
-                    msg(player, "§6Epic! A brimstone claymore from Simply Swords!");
-                }
-            });
-
-            pool.add(() -> {
-                ItemStack sword = getItem("simplyswords", "watching_warglaive");
-                if (!sword.isEmpty()) {
-                    player.addItem(sword);
-                    msg(player, "§6Epic! A watching warglaive from Simply Swords!");
-                }
-            });
-
-            pool.add(() -> {
-                ItemStack sword = getItem("simplyswords", "soulrender");
-                if (!sword.isEmpty()) {
-                    player.addItem(sword);
-                    msg(player, "§6Epic! A soulrender from Simply Swords!");
+                if (!enhance.isEmpty()) {
+                    enhance.setCount(2);
+                    player.addItem(enhance);
                 }
 
+                msg(player, "§6Epic! Reforging supplies from the void!");
             });
-
-            pool.add(() -> {
-                ItemStack sword = getItem("simplyswords", "enigma");
-                if (!sword.isEmpty()) {
-                    player.addItem(sword);
-                    msg(player, "§6Epic! An enigma from Simply Swords!");
-                }
-
-            });
-
-            pool.add(() -> {
-                ItemStack sword = getItem("simplyswords", "arcanethyst");
-                if (!sword.isEmpty()) {
-                    player.addItem(sword);
-                    msg(player, "§6Epic! An arcanethyst from Simply Swords!");
-                }
-
-            });
-
-
-            pool.add(() -> {
-                ItemStack sword = getItem("simplyswords", "stars_edge");
-                if (!sword.isEmpty()) {
-                    player.addItem(sword);
-                    msg(player, "§6Epic! star's edge from Simply Swords!");
-                }
-
-            });
-
-            pool.add(() -> {
-                ItemStack sword = getItem("simplyswords", "wraithfang");
-                if (!sword.isEmpty()) {
-                    player.addItem(sword);
-                    msg(player, "§6Epic! wraithfang from Simply Swords!");
-                }
-
-            });
-
-            pool.add(() -> {
-                ItemStack sword = getItem("simplyswords", "magiscythe");
-                if (!sword.isEmpty()) {
-                    player.addItem(sword);
-                    msg(player, "§6Epic! magiscythe from Simply Swords!");
-                }
-
-            });
-
-            pool.add(() -> {
-                ItemStack sword = getItem("simplyswords", "ribboncleaver");
-                if (!sword.isEmpty()) {
-                    player.addItem(sword);
-                    msg(player, "§6Epic! ribboncleaver from Simply Swords!");
-                }
-
-            });
-
         }
-        // end SS
+        // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        // MOD END: APOTHEOSIS
+        // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
+        // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+        // MOD START: SIMPLY SWORDS
+        // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+        if (isLoaded("simplyswords")) {
+
+            String[] swords = {
+                    "whisperwind", "caelestis", "shadowsting", "brimstone_claymore",
+                    "watching_warglaive", "soulrender", "enigma", "arcanethyst",
+                    "stars_edge", "wraithfang", "magiscythe", "ribboncleaver"
+            };
+
+            for (String swordId : swords) {
+                pool.add(() -> {
+                    ItemStack sword = getItem("simplyswords", swordId);
+                    if (!sword.isEmpty()) {
+                        player.addItem(sword);
+                        msg(player, "§6Epic! A " + swordId.replace("_", " ") + " from Simply Swords!");
+                    }
+                });
+            }
+        }
+        // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        // MOD END: SIMPLY SWORDS
+        // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     }
 
     // -------------------------------------------------------
     // LEGENDARY
     // -------------------------------------------------------
 
-    public static void addLegendaryEffects(List<Runnable> pool, Player player) {}
+    public static void addLegendaryEffects(List<Runnable> pool, Player player) {
+
+        // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+        // MOD START: APOTHEOSIS
+        // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+        if (isLoaded("apotheosis")) {
+
+            // Full Apotheosis Legendary Haul
+            pool.add(() -> {
+                String[] allGemTypes = {
+                        "core/solar", "core/lunar", "core/brawler", "core/breach",
+                        "core/combatant", "core/guardian", "core/lightning",
+                        "core/samurai", "core/slipstream", "core/splendor"
+                };
+
+                int given = 0;
+                for (String type : allGemTypes) {
+                    ItemStack gem = getApothGem(type, "perfect");
+                    if (!gem.isEmpty()) {
+                        player.addItem(gem);
+                        given++;
+                    }
+                }
+
+                ItemStack withdrawal = getItem("apotheosis", "sigil_of_withdrawal");
+                ItemStack malice = getItem("apotheosis", "sigil_of_malice");
+                ItemStack enhance = getItem("apotheosis", "sigil_of_enhancement");
+
+                if (!withdrawal.isEmpty()) player.addItem(withdrawal);
+                if (!malice.isEmpty()) player.addItem(malice);
+                if (!enhance.isEmpty()) {
+                    enhance.setCount(5);
+                    player.addItem(enhance);
+                }
+
+                if (given > 0) {
+                    msg(player, "§e§lLEGENDARY! Every perfect gem rains from the chaos! (" + given + " gems)");
+                }
+            });
+
+            // Sigil Storm
+            pool.add(() -> {
+                List<String> sigils = List.of(
+                        "sigil_of_socketing", "sigil_of_rebirth", "sigil_of_withdrawal",
+                        "sigil_of_enhancement", "sigil_of_malice", "sigil_of_unnaming"
+                );
+
+                int given = 0;
+                for (String id : sigils) {
+                    ItemStack s = getItem("apotheosis", id);
+                    if (!s.isEmpty()) {
+                        s.setCount(2);
+                        player.addItem(s);
+                        given++;
+                    }
+                }
+                if (given > 0) {
+                    msg(player, "§e§lLEGENDARY! A storm of sigils! The forge is yours!");
+                }
+            });
+        }
+        // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        // MOD END: APOTHEOSIS
+        // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    }
 
     // -------------------------------------------------------
     // NEGATIVE
@@ -220,4 +276,20 @@ public class ModCompatibility {
 
     public static void addNegativeEffects(List<Runnable> pool, Player player) {}
 
+    // -------------------------------------------------------
+    // APOTHEOSIS HELPER
+    // -------------------------------------------------------
+
+    private static ItemStack getApothGem(String gemPath, String purity) {
+        ItemStack base = getItem("apotheosis", "gem");
+        if (base.isEmpty()) return ItemStack.EMPTY;
+
+        net.minecraft.nbt.CompoundTag tag = new net.minecraft.nbt.CompoundTag();
+        tag.putString("apotheosis:gem", "apotheosis:" + gemPath);
+        tag.putString("apotheosis:purity", purity);
+
+        base.applyComponents(net.minecraft.core.component.DataComponentPatch.EMPTY);
+
+        return base;
+    }
 }
