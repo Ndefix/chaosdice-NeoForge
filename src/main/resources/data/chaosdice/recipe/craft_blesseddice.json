@@ -3,7 +3,6 @@
   "category": "misc",
   "key": {
     "G": { "item": "minecraft:ghast_tear" },
-    "N": { "item": "minecraft:nether_star" },
     "T": { "item": "minecraft:totem_of_undying" },
     "D": { "item": "chaosdice:chaosdice" }
   },

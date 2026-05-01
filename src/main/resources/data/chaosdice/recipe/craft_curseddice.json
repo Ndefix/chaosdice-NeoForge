@@ -4,7 +4,6 @@
   "key": {
     "C": { "item": "minecraft:coal" },
     "B": { "item": "minecraft:bone" },
-    "W": { "item": "minecraft:wither_skeleton_skull" },
     "D": { "item": "chaosdice:chaosdice" }
   },
   "pattern": [
