@@ -538,6 +538,81 @@ public class ChaosDiceItem extends Item {
             msg(player, "§5Very Rare! Blessed with all powers!");
         });
 
+        pool.add(() -> {
+            if (!(level instanceof ServerLevel serverLevel)) return;
+
+            // Pick a random mount type
+            List<Runnable> mounts = List.of(
+                    () -> {
+                        Horse horse = EntityType.HORSE.create(serverLevel);
+                        if (horse == null) return;
+                        horse.moveTo(player.getX() + 2, player.getY(), player.getZ() + 2, player.getYRot(), 0);
+
+                        // Tame and configure
+                        horse.setTamed(true);
+                        horse.setOwnerUUID(player.getUUID());
+
+                        // Max speed + jump
+                        horse.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(0.45);
+                        horse.getAttribute(Attributes.JUMP_STRENGTH).setBaseValue(1.8);
+                        horse.getAttribute(Attributes.MAX_HEALTH).setBaseValue(60.0);
+                        horse.setHealth(60.0f);
+
+                        // Saddle + gold armor
+                        horse.getSlot(400).set(new ItemStack(Items.SADDLE));
+                        horse.getSlot(401).set(new ItemStack(Items.GOLDEN_HORSE_ARMOR));
+
+                        serverLevel.addFreshEntity(horse);
+                        msg(player, "§5Very Rare! A magnificent horse appears, ready to ride!");
+                    },
+                    () -> {
+                        var strider = EntityType.STRIDER.create(serverLevel);
+                        if (strider == null) return;
+                        strider.moveTo(player.getX() + 2, player.getY(), player.getZ() + 2, player.getYRot(), 0);
+
+                        strider.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(0.35);
+                        strider.getAttribute(Attributes.MAX_HEALTH).setBaseValue(40.0);
+                        strider.setHealth(40.0f);
+
+                        // Give the player a warped fungus on a stick to control it
+                        player.addItem(new ItemStack(Items.WARPED_FUNGUS_ON_A_STICK));
+
+                        // Saddle it via slot
+                        strider.getSlot(400).set(new ItemStack(Items.SADDLE));
+
+                        serverLevel.addFreshEntity(strider);
+                        msg(player, "§5Very Rare! A chaos strider rises from the void!");
+                    },
+                    () -> {
+                        var camel = EntityType.CAMEL.create(serverLevel);
+                        if (camel == null) return;
+                        camel.moveTo(player.getX() + 2, player.getY(), player.getZ() + 2, player.getYRot(), 0);
+
+                        camel.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(0.42);
+                        camel.getAttribute(Attributes.MAX_HEALTH).setBaseValue(50.0);
+                        camel.setHealth(50.0f);
+                        camel.setTamed(true);
+                        camel.setOwnerUUID(player.getUUID());
+
+                        camel.getSlot(400).set(new ItemStack(Items.SADDLE));
+
+                        serverLevel.addFreshEntity(camel);
+                        msg(player, "§5Very Rare! A chaos camel strides in from the dunes!");
+                    }
+            );
+
+            // Pick and run a random mount
+            mounts.get(RAND.nextInt(mounts.size())).run();
+
+            // Dramatic arrival particles around the mount spawn point
+            serverLevel.sendParticles(ParticleTypes.PORTAL,
+                    player.getX() + 2, player.getY() + 1, player.getZ() + 2,
+                    40, 0.5, 0.5, 0.5, 0.1);
+            serverLevel.sendParticles(ParticleTypes.END_ROD,
+                    player.getX() + 2, player.getY() + 1, player.getZ() + 2,
+                    20, 0.3, 0.3, 0.3, 0.05);
+        });
+
         ModCompatibility.addVeryRareEffects(pool, player);
         return pool;
     }
